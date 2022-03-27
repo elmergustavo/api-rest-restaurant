@@ -8,6 +8,7 @@ class RestaurantApiApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }
