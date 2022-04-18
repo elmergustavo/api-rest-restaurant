@@ -4,13 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import url.api.restaurantapi.models.entity.Cliente;
 import url.api.restaurantapi.models.services.IClienteService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
@@ -47,23 +52,37 @@ public class ClienteRestCotroller {
         }
         return new ResponseEntity<Cliente>(cliente,HttpStatus.OK);
     }
-    
+
     @PostMapping("/clientes")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> create(@RequestBody Cliente cliente){
+    public ResponseEntity<?> create(@Validated @RequestBody Cliente cliente, BindingResult result) {
+
         Cliente clienteNew = null;
         Map<String, Object> response = new HashMap<>();
+
+        if(result.hasErrors()) {
+
+            List<String> errors = result.getFieldErrors()
+                    .stream()
+                    .map(err -> "El campo '" + err.getField() +"' "+ err.getDefaultMessage())
+                    .collect(Collectors.toList());
+
+            response.put("errors", errors);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        }
+
         try {
             clienteNew = clienteService.save(cliente);
-        } catch ( DataAccessException e ) {
-            response.put("mensaje", "Error al realizar un insert en la base de datos");
-            response.put("error", e.getMessage().concat(": ".concat(e.getMostSpecificCause().getMessage())));
-            return new ResponseEntity<Map<String, Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch(DataAccessException e) {
+            response.put("mensaje", "El Correo electronico ya existe en la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        response.put("mensaje", "El cliente ha sido creado con exito!");
+
+        response.put("mensaje", "El cliente ha sido creado con éxito!");
         response.put("cliente", clienteNew);
-        return  new ResponseEntity<Map<String, Object>>(response,HttpStatus.CREATED);
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
+
 
     @PutMapping("clientes/{id}")
     //@ResponseStatus(HttpStatus.CREATED)
@@ -87,7 +106,7 @@ public class ClienteRestCotroller {
 
              clienteUpdated = clienteService.save(clienteActual);
         } catch ( DataAccessException e ) {
-            response.put("mensaje", "Error al actualizar un cliente en la base de datos");
+            response.put("mensaje", "El Correo electronico ya existe en la base de datos");
             response.put("error", e.getMessage().concat(": ".concat(e.getMostSpecificCause().getMessage())));
             return new ResponseEntity<Map<String, Object>>(response,HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -1,5 +1,10 @@
 package url.api.restaurantapi.models.entity;
 
+import com.sun.istack.NotNull;
+import org.aspectj.bridge.IMessage;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.NotFound;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -10,10 +15,13 @@ public class Cliente implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
-
+    @NotFound
     @Column(nullable = false)
     private String nombre;
+
+
     private String apellido;
+
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -21,11 +29,11 @@ public class Cliente implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date createAt;
 
+
     @PrePersist
     public void prePersist(){
         createAt = new Date();
     }
-
     public Long getId() {
         return id;
     }
