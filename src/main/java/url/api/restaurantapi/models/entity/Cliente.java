@@ -1,39 +1,46 @@
 package url.api.restaurantapi.models.entity;
 
-import com.sun.istack.NotNull;
-import org.aspectj.bridge.IMessage;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.NotFound;
-
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+
 @Entity
-@Table(name = "clientes")
+@Table(name="clientes")
 public class Cliente implements Serializable {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
-    @NotFound
-    @Column(nullable = false)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private Long id;
+
+   // @NotEmpty(message ="no puede estar vacio")
+   // @Size(min=4, max=12, message="el tamaño tiene que estar entre 4 y 12")
+    @Column(nullable=false)
     private String nombre;
 
-
+   // @NotEmpty(message ="no puede estar vacio")
     private String apellido;
 
-    @Column(nullable = false, unique = true)
+   // @NotEmpty(message ="no puede estar vacio")
+    //@Email(message="no es una dirección de correo bien formada")
+    @Column(nullable=false, unique=true)
     private String email;
 
-    @Column(name = "create_at")
+   // @NotNull(message ="no puede estar vacio")
+    @Column(name="create_at")
     @Temporal(TemporalType.DATE)
     private Date createAt;
 
+    private String foto;
 
-    @PrePersist
-    public void prePersist(){
-        createAt = new Date();
-    }
     public Long getId() {
         return id;
     }
@@ -74,5 +81,14 @@ public class Cliente implements Serializable {
         this.createAt = createAt;
     }
 
-    //private static final long serialVersionUID = 1L;
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    private static final long serialVersionUID = 1L;
 }
+
